@@ -1,7 +1,10 @@
 import { GetStaticProps } from 'next';
 import { Head } from 'next/document';
 import Link from "next/link";
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../services/prismic';
+import {FiCalendar, FiUser} from 'react-icons/fi';
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
@@ -27,32 +30,56 @@ interface HomeProps {
 
 export default function Home({postsPagination}: HomeProps) {
   // TODO
+
+    
     return(
       <>
         {/* <Head>
           <title>Title</title>
         </Head> */}
 
-        <main>
+        <main className={styles.container}>
           <div>
 
             {
               postsPagination &&
                 postsPagination.results.map(post =>(
-                  <Link  href={`/post/${post.uid}`}>
-                    <a> 
-                      <strong>{post.data.title}</strong>
-                      <text>{post.data.subtitle}</text>
-                      <time>{post.first_publication_date}</time>
-                      <text>{post.data.author}</text>
-                  </a>
-                  </Link >
+                  <div className={styles.postContainer}>
+                    <Link  href={`/post/${post.uid}`}>
+                      <a> 
+                        <div className={styles.heading}>
+                          <strong >{post.data.title}</strong>
+                        </div>
+                        <div className={styles.subtitle}>
+                          <text >{post.data.subtitle}</text>
+                        </div>
+
+                        <div className={styles.infoContainer}>
+                          <div className={styles.info}>
+                            <FiCalendar color="#F8F8F8" size={20}/>
+                            <time>{format(
+                              new Date(post.first_publication_date),
+                              "dd MMM 'de' yyyy",
+                              {
+                                locale: ptBR,
+                                
+                              }
+                            )}</time>
+                          </div>
+                          <div className={styles.info}>
+                            <FiUser color="#F8F8F8" size={20} />
+                          <text >{post.data.author}</text>
+                          </div>
+                        </div>
+                    </a>
+                    </Link >
+                  </div>
                 ))
             }
 
             {
               postsPagination?.next_page &&
-              <a href={postsPagination.next_page}>Carregar mais posts</a>
+              <a href={postsPagination.next_page} className={styles.loadMore}>Carregar mais posts</a>
             }
 
           </div>
@@ -64,13 +91,12 @@ export default function Home({postsPagination}: HomeProps) {
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
   const postsResponse = await prismic.getByType('posts',{
-    fetch:['posts.title','posts.subtitle'],
-    pageSize: 1
+    fetch:['posts.title','posts.subtitle', 'posts.author'],
+    pageSize: 2
   });//TODO
 
   // TODO
-
-  console.log('===>', postsResponse);
+  console.log('===>', JSON.stringify(postsResponse, null, 2));
 
   const postsPagination={
     next_page: postsResponse.next_page,

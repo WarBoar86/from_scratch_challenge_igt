@@ -1,5 +1,8 @@
+import { format } from 'date-fns';
+import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import { FiCalendar, FiUser } from 'react-icons/fi';
 
 import { getPrismicClient } from '../../services/prismic';
 
@@ -40,8 +43,51 @@ export default function Post({post}:PostProps) {
         ? <text> Carregando...</text>
         :
         <>
-          <text>{post ? post.data.title: '...'}</text>
-          <img src={post.data.banner.url} alt="" />
+
+          <img src={post.data.banner.url} alt=""  className={styles.banner}/>
+
+          
+          <div className={styles.container}>
+            <div className={styles.title}>
+            <text >{post.data.title}</text>
+
+            </div>
+            <div className={styles.infoContainer}>
+                            <div className={styles.info}>
+                              <FiCalendar color="#F8F8F8" size={20}/>
+                              <time>{format(
+                                new Date(post.first_publication_date),
+                                "dd MMM 'de' yyyy",
+                                {
+                                  locale: ptBR,
+                                  
+                                }
+                              )}</time>
+                            </div>
+                            <div className={styles.info}>
+                              <FiUser color="#F8F8F8" size={20} />
+                            <text >{post.data.author}</text>
+                            </div>
+            </div>
+
+            <div >
+                  {
+                    post.data.content.map(p =>
+                      <div key={p.heading} className={styles.sectionContainer}>
+                        <div className={styles.heading}>
+                          {p.heading}
+                        </div>
+
+                          <div className={styles.postBody}>
+                            {p.body.map(b => <div>{b.text}</div>)}
+                          </div>
+                        
+                        </div>
+                    )
+                  }
+
+            </div>
+          </div>  
         </>
       }
 
@@ -78,7 +124,7 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts',String(slug));//TODO
   
-  console.log('================>',JSON.stringify(response, null, 2));
+  console.log('================>',JSON.stringify(response.data.content, null, 2));
 
   // TODO
   const post ={

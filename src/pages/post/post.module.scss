@@ -1,1 +1,64 @@
 // TODO
+.banner{
+    display:flex ;
+    width: 100%;
+}
+
+.title{
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--heading);
+    margin-bottom: 24px;
+}
+
+.infoContainer{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: center;
+   
+}
+
+.info{
+    color:var(--info);
+    font-size: 14px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: fit-content;
+    justify-content: space-between;
+
+    text, time{
+        margin-left: 8px;
+    }
+
+     & + div{
+         margin-left: 25px;
+     }
+
+}
+
+.sectionContainer{
+    margin-top: 64px;
+}
+
+.heading{
+  font-size: 36px;
+  font-weight: 700;
+  color:var(--heading);
+  margin-bottom: 30px;  
+}
+.postBody{
+  font-size: 18px;
+  font-weight: 400;
+  color:var(--body);  
+}
+
+.container{
+    width: 700px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin: 0 auto;
+    margin-top: 80px;
+}
