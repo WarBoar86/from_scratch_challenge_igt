@@ -1,4 +1,5 @@
 import { GetStaticPaths, GetStaticProps } from 'next';
+import { useRouter } from 'next/router';
 
 import { getPrismicClient } from '../../services/prismic';
 
@@ -26,20 +27,70 @@ interface PostProps {
   post: Post;
 }
 
-// export default function Post() {
-//   // TODO
-// }
+export default function Post({post}:PostProps) {
+  // TODO
 
-// export const getStaticPaths = async () => {
-//   const prismic = getPrismicClient({});
-//   const posts = await prismic.getByType(TODO);
+  const router = useRouter();
 
-//   // TODO
-// };
+  return(
+    <>
 
-// export const getStaticProps = async ({params }) => {
-//   const prismic = getPrismicClient({});
-//   const response = await prismic.getByUID(TODO);
+      {
+        router.isFallback
+        ? <text> Carregando...</text>
+        :
+        <>
+          <text>{post ? post.data.title: '...'}</text>
+          <img src={post.data.banner.url} alt="" />
+        </>
+      }
 
-//   // TODO
-// };
+      
+    </>
+  );
+}
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const prismic = getPrismicClient({});
+  const posts = await prismic.getByType('posts');//TODO
+
+
+  
+  // TODO
+  const paths = posts.results.map(p => {
+    return { params: { slug: p.uid }}
+  }
+  );
+
+  return {
+    paths: paths,
+    fallback: true
+
+  }
+
+
+};
+
+export const getStaticProps: GetStaticProps = async ({params}) => {
+
+  const {slug} = params;
+  
+  const prismic = getPrismicClient({});
+  const response = await prismic.getByUID('posts',String(slug));//TODO
+  
+  console.log('================>',JSON.stringify(response, null, 2));
+
+  // TODO
+  const post ={
+    first_publication_date: response.first_publication_date,
+  data: {
+    title: response.data.title,
+    banner:response.data.banner,
+    author: response.data.author,
+    content: response.data.content,// {
+   }
+  } 
+  return{
+    props:{post}
+  }
+};
