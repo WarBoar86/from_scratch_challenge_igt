@@ -57,7 +57,7 @@ export default function Post({post}:PostProps) {
                               <FiCalendar color="#F8F8F8" size={20}/>
                               <time>{format(
                                 new Date(post.first_publication_date),
-                                "dd MMM 'de' yyyy",
+                                "dd MMM yyyy",
                                 {
                                   locale: ptBR,
                                   
@@ -124,7 +124,7 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts',String(slug));//TODO
   
-  console.log('================>',JSON.stringify(response.data.content, null, 2));
+  // console.log('================>',JSON.stringify(response.data.content, null, 2));
 
   // TODO
   const post ={

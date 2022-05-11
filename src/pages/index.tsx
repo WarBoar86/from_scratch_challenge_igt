@@ -1,13 +1,15 @@
 import { GetStaticProps } from 'next';
-import { Head } from 'next/document';
+import  Head  from 'next/head';
 import Link from "next/link";
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { getPrismicClient } from '../services/prismic';
 import {FiCalendar, FiUser} from 'react-icons/fi';
+import router, { useRouter } from 'next/router';;
 
 import commonStyles from '../styles/common.module.scss';
 import styles from './home.module.scss';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 interface Post {
   uid?: string;
@@ -29,22 +31,38 @@ interface HomeProps {
 }
 
 export default function Home({postsPagination}: HomeProps) {
-  // TODO
 
-    
+
+
+  const [isLoadAll, setIsLoadAll] = useState(false);
+
+  function handleLoadMore(){
+    if(postsPagination){
+      fetch(postsPagination.next_page)
+        .then(response => response.json())
+        .then(d => postsPagination.results.push( d.results[0] as Post))
+        .then(e => setIsLoadAll(true))
+    }
+  }
+
+useEffect(()=>{
+  setIsLoadAll(false);
+},[])
+
     return(
       <>
-        {/* <Head>
-          <title>Title</title>
-        </Head> */}
+        <Head>
+          <title>spacetraveling</title>
+        </Head>
 
         <main className={styles.container}>
-          <div>
+          <div >
 
             {
               postsPagination &&
                 postsPagination.results.map(post =>(
-                  <div className={styles.postContainer}>
+                  // post &&
+                  <div className={styles.postContainer} key={post.data.title}>
                     <Link  href={`/post/${post.uid}`}>
                       <a> 
                         <div className={styles.heading}>
@@ -59,7 +77,7 @@ export default function Home({postsPagination}: HomeProps) {
                             <FiCalendar color="#F8F8F8" size={20}/>
                             <time>{format(
                               new Date(post.first_publication_date),
-                              "dd MMM 'de' yyyy",
+                              "dd MMM yyyy",
                               {
                                 locale: ptBR,
                                 
@@ -78,10 +96,9 @@ export default function Home({postsPagination}: HomeProps) {
             }
 
             {
-              postsPagination?.next_page &&
-              <a href={postsPagination.next_page} className={styles.loadMore}>Carregar mais posts</a>
+              postsPagination?.next_page && !isLoadAll &&
+              <button onClick={handleLoadMore }className={styles.loadMore}>Carregar mais posts</button>
             }
-
           </div>
         </main>
       </>
@@ -90,13 +107,21 @@ export default function Home({postsPagination}: HomeProps) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient({});
-  const postsResponse = await prismic.getByType('posts',{
+
+  // let pageNumber =1;
+
+
+  let pages =[];
+
+  const postsResponse = await prismic.getByType('posts'
+  ,{
     fetch:['posts.title','posts.subtitle', 'posts.author'],
-    pageSize: 2
+    pageSize:1,
+
   });//TODO
 
   // TODO
-  console.log('===>', JSON.stringify(postsResponse, null, 2));
+  // console.log('===>', JSON.stringify(postsResponse,null,2));
 
   const postsPagination={
     next_page: postsResponse.next_page,
