@@ -2,7 +2,8 @@ import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
-import { FiCalendar, FiUser } from 'react-icons/fi';
+import { useEffect, useMemo } from 'react';
+import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 
 import { getPrismicClient } from '../../services/prismic';
 
@@ -34,6 +35,34 @@ export default function Post({post}:PostProps) {
   // TODO
 
   const router = useRouter();
+  let readTime = 0;
+
+  function readingTimeCalculation(){
+      const totalWords = post.data.content.reduce((acc1, word)  =>{
+
+        acc1 += 
+        (word.heading.split(' ').filter( w => w !== ' ').length) 
+        + 
+        (word.body.reduce( (acc2 , word2) =>  {
+          acc2+= word2.text.split(' ').filter( w => w !== ' ').length
+          return acc2
+        },0))
+
+        return acc1  
+    }, 0);
+
+    const readingWordsAverage= 200;
+
+    const time = Math.ceil( (totalWords/readingWordsAverage))
+
+    return time;
+  }
+
+  useMemo(()=>{
+    
+    readTime = readingTimeCalculation();
+
+  },[])
 
   return(
     <>
@@ -67,6 +96,10 @@ export default function Post({post}:PostProps) {
                             <div className={styles.info}>
                               <FiUser color="#F8F8F8" size={20} />
                             <text >{post.data.author}</text>
+                            </div>
+                            <div className={styles.info}>
+                              <FiClock color="#F8F8F8" size={20} />
+                            <text > {`${readTime} min`}</text>
                             </div>
             </div>
 
