@@ -69,7 +69,7 @@ useEffect(()=>{
                           <strong >{post.data.title}</strong>
                         </div>
                         <div className={styles.subtitle}>
-                          <text >{post.data.subtitle}</text>
+                          <span >{post.data.subtitle}</span>
                         </div>
 
                         <div className={styles.infoContainer}>
@@ -86,7 +86,7 @@ useEffect(()=>{
                           </div>
                           <div className={styles.info}>
                             <FiUser color="#F8F8F8" size={20} />
-                          <text >{post.data.author}</text>
+                          <span >{post.data.author}</span>
                           </div>
                         </div>
                     </a>
@@ -115,7 +115,7 @@ export const getStaticProps: GetStaticProps = async () => {
 
   const postsResponse = await prismic.getByType('posts'
   ,{
-    fetch:['posts.title','posts.subtitle', 'posts.author'],
+    // fetch:['posts.title','posts.subtitle', 'posts.author'],
     pageSize:1,
 
   });//TODO

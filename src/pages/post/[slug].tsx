@@ -1,7 +1,9 @@
 import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { RichText } from 'prismic-dom';
 import { useEffect, useMemo } from 'react';
 import { FiCalendar, FiUser, FiClock } from 'react-icons/fi';
 
@@ -66,10 +68,13 @@ export default function Post({post}:PostProps) {
 
   return(
     <>
+      <Head>
+          <title>{post.data.title}</title>
+      </Head>
 
       {
         router.isFallback
-        ? <text> Carregando...</text>
+        ? <span> Carregando...</span>
         :
         <>
 
@@ -78,48 +83,49 @@ export default function Post({post}:PostProps) {
           
           <div className={styles.container}>
             <div className={styles.title}>
-            <text >{post.data.title}</text>
+            <span >{post.data.title}</span>
 
-            </div>
-            <div className={styles.infoContainer}>
-                            <div className={styles.info}>
-                              <FiCalendar color="#F8F8F8" size={20}/>
-                              <time>{format(
-                                new Date(post.first_publication_date),
-                                "dd MMM yyyy",
-                                {
-                                  locale: ptBR,
-                                  
-                                }
-                              )}</time>
-                            </div>
-                            <div className={styles.info}>
-                              <FiUser color="#F8F8F8" size={20} />
-                            <text >{post.data.author}</text>
-                            </div>
-                            <div className={styles.info}>
-                              <FiClock color="#F8F8F8" size={20} />
-                            <text > {`${readTime} min`}</text>
-                            </div>
-            </div>
+          </div>
 
-            <div >
+
+          <div className={styles.infoContainer}>
+              <div className={styles.info}>
+                <FiCalendar color="#F8F8F8" size={20}/>
+                <time>{format(
+                  new Date(post.first_publication_date),
+                  "dd MMM yyyy",
                   {
-                    post.data.content.map(p =>
-                      <div key={p.heading} className={styles.sectionContainer}>
-                        <div className={styles.heading}>
-                          {p.heading}
-                        </div>
+                  locale: ptBR,
 
-                          <div className={styles.postBody}>
-                            {p.body.map(b => <div>{b.text}</div>)}
-                          </div>
-                        
-                        </div>
-                    )
                   }
+                )}</time>
+              </div>
+              <div className={styles.info}>
+                <FiUser color="#F8F8F8" size={20} />
+                <span >{post.data.author}</span>
+              </div>
+              <div className={styles.info}>
+                <FiClock color="#F8F8F8" size={20} />
+                <span > {`${readTime} min`}</span>
+              </div>
+          </div>
 
-            </div>
+          {
+      
+            
+            post.data.content.map( p => {
+
+              return(
+                <div key={p.heading}>
+                <div className={styles.heading}> {p.heading}</div> 
+              <div className={styles.postBody}  dangerouslySetInnerHTML={{__html: RichText.asHtml(p.body)}} />
+              </div>
+              )
+            
+            })
+      
+          }
+
           </div>  
         </>
       }
@@ -157,16 +163,18 @@ export const getStaticProps: GetStaticProps = async ({params}) => {
   const prismic = getPrismicClient({});
   const response = await prismic.getByUID('posts',String(slug));//TODO
   
-  // console.log('================>',JSON.stringify(response.data.content, null, 2));
+  // console.log('================>',JSON.stringify(response, null, 2));
 
   // TODO
   const post ={
+    uid: response.uid,
     first_publication_date: response.first_publication_date,
   data: {
     title: response.data.title,
-    banner:response.data.banner,
+    subtitle: response.data.subtitle,
     author: response.data.author,
-    content: response.data.content,// {
+    banner:response.data.banner,
+    content: response.data.content
    }
   } 
   return{
